@@ -32,12 +32,24 @@ def query_db(query, args=(), one=False, commit=False):
 @app.route("/")
 @login_required
 def index():
+    exams = query_db("SELECT score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
+    if exams:
+        score = 0
+        total = 0
+        for row in exams:
+            if row["ex_co"]:
+                total += row["ex_co"]
+            score += row["score"]
+        percentage = round((score / total * 100))
+        print(percentage,"%")
     role = query_db("SELECT role FROM users WHERE id = ?", (session["user_id"],), one=True)
     name = query_db("SELECT username FROM users WHERE id = ?", (session["user_id"],), one=True)
     if role["role"].lower() == "teacher":
         return render_template("index.html", role="teacher", username=name["username"])
     else:
-        return render_template("index.html", role=role["role"].lower(), username=name["username"])
+        data = [10, 20, 30, 40, 50]
+        labels = ["Math", "Physics", "Biology", "History", "English"]
+        return render_template("index.html", role=role["role"].lower(), username=name["username"], data=data, labels=labels)
 
 
 @app.route("/new_ex", methods=["GET", "POST"])
@@ -180,8 +192,8 @@ def get_student_ans(token):
         if ans[f"q{q['id']}"] == correct[idx]["correct_choice"]:
             corr_ans_stu += 1
 
-    query_db("INSERT INTO results (student_id, exam_id, score, date_taken) VALUES(?, ?, ?, ?)",
-             (session["user_id"], exam["id"], corr_ans_stu, date_today), commit=True)
+    query_db("INSERT INTO results (student_id, exam_id, score, date_taken, ex_co) VALUES(?, ?, ?, ?, ?)",
+             (session["user_id"], exam["id"], corr_ans_stu, date_today, ques_count), commit=True)
 
     flash(f"تم التسليم. الدرجة: {corr_ans_stu}/{ques_count}", "warning")
     return redirect("/")

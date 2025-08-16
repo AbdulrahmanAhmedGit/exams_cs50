@@ -33,6 +33,23 @@ Main
     👋 Welcome, {{ username }}
 </h1>
 {% if role == "student" %}
+  <canvas id="myChart"></canvas>
+  <script>
+    const ctx = document.getElementById('myChart');
+    new Chart(ctx, {
+      type: 'bar', 
+      data: {
+        labels: {{ labels|tojson }},
+        datasets: [{
+          label: 'Scores',
+          data: {{ data|tojson }},
+          borderWidth: 1,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)'
+        }]
+      }
+    });
+  </script>
 <div class="text-center mt-4">
     <a href="/my_exams" class="btn btn-primary btn-lg">
         📚 My Exams
