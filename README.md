@@ -25,7 +25,7 @@ The Online Exam Platform is a web-based application that allows administrators t
 1. Clone the repository:
 
    ```bash
-   git clone <your-project-url>
+   git clone https://github.com/AbdulrahmanAhmedGit/exams_cs50.git
    cd project
    ```
 
