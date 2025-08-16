@@ -23,45 +23,145 @@ Statistics
 </div>
 {% endblock %}
 {% block main %}
-  <style>
-    .chart-container {
-      width: 300px;
-      height: 300px;
-      margin: auto;
-    }
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f8;
+    margin: 20px;
+  }
 
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-  </style>
-  <h2 style="text-align:center;">Total Score</h2>
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+
+  .charts-wrapper {
+    display: flex;
+    justify-content: center; 
+    gap: 80px; 
+    flex-wrap: wrap; 
+  }
+
+  .chart-container {
+    width: 400px;
+    height: 400px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+</style>
+
+<h2>My Scores Overview</h2>
+
+<div class="charts-wrapper">
   <div class="chart-container">
-    <canvas id="myChart"></canvas>
+    <canvas id="myChart1"></canvas>
   </div>
 
-  <script>
-    const total = {{ total }};
-    const maxScore = 100;
-    new Chart(document.getElementById("myChart"), {
-      type: 'doughnut',
-      data: {
-        labels: ['Total', 'Remaining'],
-        datasets: [{
-          data: [total, maxScore - total],
-          backgroundColor: [
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(200, 200, 200, 0.3)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' }
+  <div class="chart-container">
+    <canvas id="myChart2"></canvas>
+  </div>
+</div>
+
+<script>
+  const total = {{ total }};
+  const maxScore = 100;
+
+  new Chart(document.getElementById("myChart1"), {
+    type: 'doughnut',
+    data: {
+      labels: ['Total', 'Remaining'],
+      datasets: [{
+        data: [total, maxScore - total],
+        backgroundColor: ['rgba(54, 162, 235, 0.8)','rgba(200, 200, 200, 0.3)'],
+        borderColor: ['rgba(54, 162, 235, 1)','rgba(200, 200, 200, 1)'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 14 },
+            color: '#333'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.label + ': ' + context.raw;
+            }
+          }
         }
       }
-    });
-  </script>
+    }
+  });
+
+  const labels = {{ labels|tojson }};
+  const data = {{ data|tojson }};
+
+  function randomColor(alpha=0.7) {
+    const r = Math.floor(Math.random() * 200 + 30);
+    const g = Math.floor(Math.random() * 200 + 30);
+    const b = Math.floor(Math.random() * 200 + 30);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  const backgroundColors = labels.map(() => randomColor(0.6));
+  const borderColors = backgroundColors.map(c => c.replace("0.6", "1"));
+
+  new Chart(document.getElementById("myChart2").getContext("2d"), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Scores',
+        data: data,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 2,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.label + ': ' + context.raw;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 5,
+            color: '#555',
+            font: { size: 12 }
+          },
+          grid: { color: '#e0e0e0' }
+        },
+        x: {
+          ticks: { color: '#555', font: { size: 12 } },
+          grid: { color: '#f0f0f0' }
+        }
+      }
+    }
+  });
+</script>
+
 {% endblock %}

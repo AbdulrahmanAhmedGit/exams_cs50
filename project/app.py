@@ -67,16 +67,22 @@ def new_ex():
 @login_required
 @not_teacher
 def statistics():
-    exams = query_db("SELECT score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
+    exams = query_db("SELECT exam_id, score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
     if exams:
+        labels = []
+        data = []
         score = 0
         total = 0
         for row in exams:
+            name = query_db("SELECT name FROM exams WHERE id = ?", (row["exam_id"],),)
+            labels.append(name[0]["name"])
+            data.append(row["score"])
             if row["ex_co"]:
                 total += row["ex_co"]
             score += row["score"]
         percentage = round((score / total * 100))
-        return render_template("statistics.html", total=percentage)
+    
+        return render_template("statistics.html", total=percentage, labels=labels, data=data)
 
 @app.route("/link", methods=["POST", "GET"])
 @login_required
