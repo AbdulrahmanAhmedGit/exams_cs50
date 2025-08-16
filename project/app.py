@@ -203,7 +203,7 @@ def login():
 
         session["user_id"] = user["id"]
         return redirect("/")
-    return render_template("login.html", success="Login Successful!")
+    return render_template("login.html")
 
 
 @app.route("/logout")
@@ -231,6 +231,6 @@ def register():
         hashed_password = generate_password_hash(password)
         query_db("INSERT INTO users (username, email, password, role) VALUES(?, ?, ?, ?)",
                  (user_name, email, hashed_password, role), commit=True)
-        return render_template("login.html", success=True)
+        return render_template("login.html", success="Registration Successful!")
 
     return render_template("register.html")
