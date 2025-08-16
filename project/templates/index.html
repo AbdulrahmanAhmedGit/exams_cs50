@@ -18,6 +18,9 @@ Main
         <li class="nav-item">
             <a class="nav-link" href="/my_exams">📚 My Exams</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/statistics">📈 My Statistics</a>
+        </li>
         {% endif %}
     </ul>
 
@@ -29,30 +32,18 @@ Main
 </div>
 {% endblock %}
 {% block main %}
+
 <h1 class="text-center my-4">
     👋 Welcome, {{ username }}
 </h1>
 {% if role == "student" %}
-  <canvas id="myChart"></canvas>
-  <script>
-    const ctx = document.getElementById('myChart');
-    new Chart(ctx, {
-      type: 'bar', 
-      data: {
-        labels: {{ labels|tojson }},
-        datasets: [{
-          label: 'Scores',
-          data: {{ data|tojson }},
-          borderWidth: 1,
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          borderColor: 'rgba(75, 192, 192, 1)'
-        }]
-      }
-    });
-  </script>
+
 <div class="text-center mt-4">
     <a href="/my_exams" class="btn btn-primary btn-lg">
         📚 My Exams
+    </a>
+    <a href="/statistics" class="btn btn-primary btn-lg">
+        📈 My Statistics
     </a>
 </div>
 {% endif %}

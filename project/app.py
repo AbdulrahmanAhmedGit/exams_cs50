@@ -8,6 +8,7 @@ import secrets
 import uuid
 from datetime import datetime
 
+
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 app.config["SESSION_PERMANENT"] = False
@@ -32,24 +33,12 @@ def query_db(query, args=(), one=False, commit=False):
 @app.route("/")
 @login_required
 def index():
-    exams = query_db("SELECT score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
-    if exams:
-        score = 0
-        total = 0
-        for row in exams:
-            if row["ex_co"]:
-                total += row["ex_co"]
-            score += row["score"]
-        percentage = round((score / total * 100))
-        print(percentage,"%")
     role = query_db("SELECT role FROM users WHERE id = ?", (session["user_id"],), one=True)
     name = query_db("SELECT username FROM users WHERE id = ?", (session["user_id"],), one=True)
     if role["role"].lower() == "teacher":
         return render_template("index.html", role="teacher", username=name["username"])
     else:
-        data = [10, 20, 30, 40, 50]
-        labels = ["Math", "Physics", "Biology", "History", "English"]
-        return render_template("index.html", role=role["role"].lower(), username=name["username"], data=data, labels=labels)
+        return render_template("index.html", role=role["role"].lower(), username=name["username"])
 
 
 @app.route("/new_ex", methods=["GET", "POST"])
@@ -73,6 +62,21 @@ def new_ex():
 
     return render_template("new_ex.html")
 
+
+@app.route("/statistics")
+@login_required
+@not_teacher
+def statistics():
+    exams = query_db("SELECT score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
+    if exams:
+        score = 0
+        total = 0
+        for row in exams:
+            if row["ex_co"]:
+                total += row["ex_co"]
+            score += row["score"]
+        percentage = round((score / total * 100))
+        return render_template("statistics.html", total=percentage)
 
 @app.route("/link", methods=["POST", "GET"])
 @login_required
@@ -246,3 +250,7 @@ def register():
         return render_template("login.html", success="Registration Successful!")
 
     return render_template("register.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

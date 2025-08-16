@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Statistics
+{% endblock %}
+{% block nav %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto">
+
+        <li class="nav-item">
+            <a class="nav-link" href="/my_exams">📚 My Exams</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/statistics">📈 My Statistics</a>
+        </li>
+    </ul>
+
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block main %}
+  <style>
+    .chart-container {
+      width: 300px;
+      height: 300px;
+      margin: auto;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+  <h2 style="text-align:center;">Total Score</h2>
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+    const total = {{ total }};
+    const maxScore = 100;
+    new Chart(document.getElementById("myChart"), {
+      type: 'doughnut',
+      data: {
+        labels: ['Total', 'Remaining'],
+        datasets: [{
+          data: [total, maxScore - total],
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(200, 200, 200, 0.3)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  </script>
+{% endblock %}
