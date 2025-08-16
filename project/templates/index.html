@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Main
+{% endblock %}
+{% block nav %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto">
+        {% if role == "teacher" %}
+        <li class="nav-item">
+            <a class="nav-link" href="/past">📜 Past Exams</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/new_ex">➕ Create New</a>
+        </li>
+        {% endif %}
+        {% if role == "student" %}
+        <li class="nav-item">
+            <a class="nav-link" href="/my_exams">📚 My Exams</a>
+        </li>
+        {% endif %}
+    </ul>
+
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block main %}
+<h1 class="text-center my-4">
+    👋 Welcome, {{ username }}
+</h1>
+{% if role == "student" %}
+<div class="text-center mt-4">
+    <a href="/my_exams" class="btn btn-primary btn-lg">
+        📚 My Exams
+    </a>
+</div>
+{% endif %}
+{% if role == "teacher" %}
+<div style="display: flex; justify-content: center; gap: 20px; margin-top: 40px;">
+    <a href="/past" class="btn btn-primary btn-lg">📜 Past Exams</a>
+    <a href="/new_ex" class="btn btn-success btn-lg">➕ Create New Exam</a>
+</div>
+{% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<br>
+<br>
+<div id="flash-message" class="alert alert-{{ category }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<script>
+    setTimeout(function() {
+        var flash = document.getElementById('flash-message');
+        if (flash) {
+            flash.style.display = 'none';
+        }
+    }, 3000);
+</script>
+{% endblock %}

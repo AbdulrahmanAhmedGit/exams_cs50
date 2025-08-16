@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Past Exams
+{% endblock %}
+
+{% block nav %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto">
+
+        <li class="nav-item">
+            <a class="nav-link" href="/my_exams">📚 My Exams</a>
+        </li>
+
+    </ul>
+
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block main %}
+<div class="container py-4">
+    <h1 class="text-center mb-4">📜 Past Exams</h1>
+
+    {% if not my_past %}
+    <div class="row justify-content-center">
+        {% for i in exam %}
+        {% set score = correct[loop.index-1] %}
+        {% set total = ques_count[loop.index-1] %}
+        {% set percentage = (score / total * 100) | round(1) %}
+
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card shadow-sm h-100 border-{{ 'success' if percentage >= 50 else 'danger' }}">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">{{ i }}</h5>
+
+                    <p class="card-text {{ 'text-success' if percentage >= 50 else 'text-danger' }} fw-bold">
+                        {{ '✅' if percentage >= 50 else '❌' }} Grade: {{ score }}/{{ total }} ({{ percentage }}%)
+                    </p>
+
+                    <p class="card-text text-muted">
+                        📅 Date: {{ date[loop.index-1] }}
+                    </p>
+
+                    <a href="#" class="btn btn-outline-primary btn-sm" >📄 View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        <h3>{{ my_past }}</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

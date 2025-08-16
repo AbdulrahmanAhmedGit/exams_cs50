@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Exam Link
+{% endblock %}
+
+{% block main %}
+<div class="text-center mt-5">
+    <h1 class="mb-4">📎 Exam Link</h1>
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <p class="card-text" id="examLink" style="font-size: 18px; word-break: break-all;">
+                {{ link }}
+            </p>
+            <button class="btn btn-success mb-3" onclick="copyLink()">📋 Copy Link</button>
+            <form action="/link" method="POST">
+                <button type="submit" class="btn btn-primary">➡ Next</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyLink() {
+    const linkText = document.getElementById("examLink").innerText;
+    navigator.clipboard.writeText(linkText).then(() => {
+        alert("✅ Link copied to clipboard!");
+    }).catch(() => {
+        alert("❌ Failed to copy the link.");
+    });
+}
+</script>
+{% endblock %}

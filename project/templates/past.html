@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Past Exams
+{% endblock %}
+
+{% block nav %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <ul class="navbar-nav me-auto">
+    <li class="nav-item">
+      <a class="nav-link active" href="/past">📜 Past Exams</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/new_ex">➕ Create New</a>
+    </li>
+  </ul>
+  <ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+      <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block main %}
+<div class="container py-5">
+  <h2 class="text-center mb-4">📜 My Past Exams</h2>
+
+  {% if exam|length == 0 %}
+  <div class="alert alert-info text-center" role="alert">
+    No past exams found. Create a new one to get started! 🚀
+  </div>
+  {% else %}
+  <div class="row justify-content-center">
+    {% for i in exam %}
+    <div class="col-md-4 col-sm-6 mb-4">
+      <div class="card shadow-sm h-100 rounded">
+        <div class="card-body text-center">
+          <h5 class="card-title fw-bold">{{ i.name }}</h5>
+          <p class="card-text text-muted">
+            <strong>🔑 Token:</strong> {{ i.token }}
+          </p>
+          <a href="/exam/preview/{{ i.token }}" class="btn btn-primary w-100">
+            👀 Preview
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

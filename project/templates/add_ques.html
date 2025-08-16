@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block main %}
+    {% if state %}
+        <div class="alert alert-danger text-center animate__animated animate__fadeIn">
+            {{ state }}
+        </div>
+    {% endif %}
+
+    <div class="container my-5">
+        <div class="card shadow-sm p-4">
+            <h3 class="text-center mb-4">✏️ Create Exam Questions</h3>
+
+            <form method="POST" action="/send_q" id="exam-form">
+                <input type="hidden" name="exam_id" value="{{ exam_id }}">
+
+                <div id="questions-container">
+                    <div class="card p-3 mb-4 question shadow-sm">
+                        <div class="mb-3">
+                            <textarea name="question_text[]" class="form-control" placeholder="Question*" rows="4" required></textarea>
+                        </div>
+
+                        {% for letter in ['A','B','C','D'] %}
+                        <div class="input-group mb-2">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" name="q0" value="{{ letter }}">
+                            </div>
+                            <input type="text" class="form-control" placeholder="Answer {{ letter }}" name="ans{{ loop.index }}_0" required>
+                        </div>
+                        {% endfor %}
+
+                        <!-- زرار الحذف -->
+                        <button type="button" class="btn btn-danger btn-sm remove-question mt-2">🗑 Delete Question</button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-primary" type="button" id="add-question">+ Add Question</button>
+                    <button class="btn btn-success" type="submit">💾 Save Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let addBtn = document.getElementById("add-question");
+        let container = document.getElementById("questions-container");
+
+        // إضافة سؤال جديد
+        addBtn.addEventListener("click", function() {
+            let questionCount = container.querySelectorAll(".question").length;
+            let firstQuestion = container.querySelector(".question");
+            let newQuestion = firstQuestion.cloneNode(true);
+
+            newQuestion.querySelectorAll("input, textarea").forEach(input => {
+                input.value = "";
+                if (input.type === "radio") input.checked = false;
+            });
+
+            let radios = newQuestion.querySelectorAll('input[type="radio"]');
+            ["A","B","C","D"].forEach((letter, idx) => {
+                radios[idx].name = `q${questionCount}`;
+                radios[idx].value = letter;
+            });
+
+            let answers = newQuestion.querySelectorAll('input[type="text"]:not([name^="question_text"])');
+            answers.forEach((ans, idx) => {
+                ans.name = `ans${idx+1}_${questionCount}`;
+            });
+
+            newQuestion.classList.add("animate__animated", "animate__fadeInUp");
+            container.appendChild(newQuestion);
+        });
+
+        container.addEventListener("click", function(e) {
+            if (e.target.classList.contains("remove-question")) {
+                let totalQuestions = container.querySelectorAll(".question").length;
+                if (totalQuestions > 1) {
+                    e.target.closest(".question").remove();
+                } else {
+                    alert("لا يمكن حذف كل الأسئلة، يجب أن يبقى سؤال واحد على الأقل.");
+                }
+            }
+        });
+
+        document.getElementById("exam-form").addEventListener("submit", function(e) {
+            let confirmSubmit = confirm("هل أنت متأكد أنك تريد حفظ الامتحان؟");
+            if (!confirmSubmit) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
+{% endblock %}

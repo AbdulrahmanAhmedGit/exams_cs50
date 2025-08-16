@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block nav %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="/login">Log in</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="/register">Register</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block main %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card shadow-sm p-4" style="width: 100%; max-width: 450px;">
+        <h3 class="text-center mb-4">📝 Create Account</h3>
+
+        {% if state %}
+            <div class="alert alert-danger text-center">
+                {{ state }}
+            </div>
+        {% endif %}
+
+        <form action="/register" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                <label for="username">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                <label for="email">Email</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                <label for="password">Password</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="co_password" name="co_password" placeholder="Confirm Password" required>
+                <label for="co_password">Confirm Password</label>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label fw-bold">Role</label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="" selected disabled>Choose...</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+            </div>
+            <button class="btn btn-success w-100" type="submit">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

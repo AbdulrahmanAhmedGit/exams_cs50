@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block title %}
+EXAM
+{% endblock %}
+
+{% block main %}
+<div class="container text-center py-4">
+  <h1 class="mb-3">{{ name }}</h1>
+
+  <p class="fs-5">
+    ⏳ الوقت المتبقي:
+    <strong id="timer" data-seconds="{{ ((time or 0)|int) * 60 }}"></strong>
+  </p>
+
+  <form method="POST" action="/submit/{{ token }}" id="examForm" class="mx-auto" style="max-width: 600px;">
+    {% for i in questions %}
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header fw-bold">سؤال {{ loop.index }}</div>
+      <div class="card-body text-start">
+        <h5 class="card-title">{{ i.text }}</h5>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="q{{ i.id }}" value="A" id="q{{ i.id }}a">
+          <label class="form-check-label" for="q{{ i.id }}a">{{ i.choice_a }}</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="q{{ i.id }}" value="B" id="q{{ i.id }}b">
+          <label class="form-check-label" for="q{{ i.id }}b">{{ i.choice_b }}</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="q{{ i.id }}" value="C" id="q{{ i.id }}c">
+          <label class="form-check-label" for="q{{ i.id }}c">{{ i.choice_c }}</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="q{{ i.id }}" value="D" id="q{{ i.id }}d">
+          <label class="form-check-label" for="q{{ i.id }}d">{{ i.choice_d }}</label>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if role == "stu" %}
+    <button type="submit" class="btn btn-success w-100">📤 تسليم الامتحان</button>
+    {% endif %}
+  </form>
+
+  {% if role == "teacher" %}
+  <a href="/past" class="btn btn-secondary mt-3">🔙 Back</a>
+  {% endif %}
+</div>
+
+<script>
+(function () {
+  const timerEl = document.getElementById('timer');
+  const form = document.getElementById('examForm');
+  let total = parseInt(timerEl.dataset.seconds, 10);
+
+  if (isNaN(total) || total <= 0) {
+    timerEl.textContent = "لا يوجد وقت محدد";
+    return;
+  }
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  let submitted = false;
+  timerEl.textContent = fmt(total);
+
+  const iv = setInterval(() => {
+    total -= 1;
+    timerEl.textContent = fmt(Math.max(total, 0));
+
+    if (total === 60) {
+      timerEl.style.color = 'red';
+      timerEl.style.fontWeight = 'bold';
+    }
+
+    if (total <= 0 && !submitted) {
+      submitted = true;
+      clearInterval(iv);
+      const auto = document.createElement('input');
+      auto.type = 'hidden';
+      auto.name = 'auto_submit';
+      auto.value = '1';
+      form.appendChild(auto);
+      form.requestSubmit ? form.requestSubmit() : form.submit();
+    }
+  }, 1000);
+
+  window.addEventListener('beforeunload', (e) => {
+    if (!submitted) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+})();
+</script>
+{% endblock %}
