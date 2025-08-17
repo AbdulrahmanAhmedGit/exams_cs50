@@ -8,25 +8,25 @@ Main
     <ul class="navbar-nav me-auto">
         {% if role == "teacher" %}
         <li class="nav-item">
-            <a class="nav-link" href="/past">📜 Past Exams</a>
+            <a class="nav-link" href="/past"><i class="fa-regular fa-scroll-old"></i> Past Exams</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/new_ex">➕ Create New</a>
+            <a class="nav-link" href="/new_ex"><i class="fa-solid fa-plus"></i> Create New</a>
         </li>
         {% endif %}
         {% if role == "student" %}
         <li class="nav-item">
-            <a class="nav-link" href="/my_exams">📚 My Exams</a>
+            <a class="nav-link" href="/my_exams"><i class="fa-solid fa-book"></i> My Exams</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/statistics">📈 My Statistics</a>
+            <a class="nav-link" href="/statistics"><i class="fa-solid fa-chart-line"></i> My Statistics</a>
         </li>
         {% endif %}
     </ul>
 
     <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-            <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+            <a href="/logout" class="btn btn-danger"><i class="fa-regular fa-right-from-bracket"></i> Log out</a>
         </li>
     </ul>
 </div>
@@ -34,23 +34,23 @@ Main
 {% block main %}
 
 <h1 class="text-center my-4">
-    👋 Welcome, {{ username }}
+    <i class="fa-regular fa-hand-wave" style="color: #1596f9;"></i> Welcome, {{ username }}
 </h1>
 {% if role == "student" %}
 
 <div class="text-center mt-4">
     <a href="/my_exams" class="btn btn-primary btn-lg">
-        📚 My Exams
+        <i class="fa-solid fa-book"></i> My Exams
     </a>
     <a href="/statistics" class="btn btn-primary btn-lg">
-        📈 My Statistics
+        <i class="fa-solid fa-chart-line"></i> My Statistics
     </a>
 </div>
 {% endif %}
 {% if role == "teacher" %}
 <div style="display: flex; justify-content: center; gap: 20px; margin-top: 40px;">
-    <a href="/past" class="btn btn-primary btn-lg">📜 Past Exams</a>
-    <a href="/new_ex" class="btn btn-success btn-lg">➕ Create New Exam</a>
+    <a href="/past" class="btn btn-primary btn-lg"><i class="fa-regular fa-scroll-old"></i> Past Exams</a>
+    <a href="/new_ex" class="btn btn-success btn-lg"><i class="fa-solid fa-plus"></i> Create New Exam</a>
 </div>
 {% endif %}
 {% with messages = get_flashed_messages(with_categories=true) %}

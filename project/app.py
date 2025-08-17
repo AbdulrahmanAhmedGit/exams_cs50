@@ -159,17 +159,21 @@ def my_exams():
 @login_required
 @not_teacher
 def take_exam(token):
-    exam = query_db("SELECT * FROM exams WHERE token = ?", (token,), one=True)
-    if not exam:
-        abort(404)
-
-    who_took = query_db("SELECT student_id FROM results WHERE exam_id = ?", (exam["id"],))
-    if any(str(session["user_id"]) == str(row["student_id"]) for row in who_took):
-        flash("YOU CANNOT !", "danger")
-        return redirect("/")
-
-    questions = query_db("SELECT * FROM questions WHERE exam_id = ?", (exam["id"],))
-    return render_template("take-exam.html", time=exam["time_limit"], name=exam["name"], questions=questions, count=0, token=token, role="stu")
+    if request.method == "GET":
+        exam = query_db("SELECT * FROM exams WHERE token = ?", (token,), one=True)
+        if not exam:
+            abort(404)
+        who_took = query_db("SELECT student_id FROM results WHERE exam_id = ?", (exam["id"],))
+        if any(str(session["user_id"]) == str(row["student_id"]) for row in who_took):
+            flash("YOU CANNOT !", "danger")
+            return redirect("/")
+        in_out = query_db("SELECT now FROM cheat WHERE exam_id = ?", (exam["id"],))
+        if in_out:
+            if in_out[0]["now"] == "IN":
+                return redirect(f"/submit/{token}")
+        query_db("INSERT INTO cheat (student_id, exam_id, now) VALUES(?,?,?) ", (session["user_id"], exam["id"],"IN"), commit=True)
+        questions = query_db("SELECT * FROM questions WHERE exam_id = ?", (exam["id"],))
+        return render_template("take-exam.html", time=exam["time_limit"], name=exam["name"], questions=questions, count=0, token=token, role="stu")
 
 
 @app.route("/exam/preview/<token>", methods=["GET", "POST"])
@@ -183,7 +187,7 @@ def preview_exam(token):
     return render_template("take-exam.html", time=exam["time_limit"], name=exam["name"], questions=questions, count=0, token=token, role="teacher")
 
 
-@app.route("/submit/<token>", methods=["POST"])
+@app.route("/submit/<token>", methods=["POST","GET"])
 @login_required
 @not_teacher
 def get_student_ans(token):
@@ -204,7 +208,7 @@ def get_student_ans(token):
 
     query_db("INSERT INTO results (student_id, exam_id, score, date_taken, ex_co) VALUES(?, ?, ?, ?, ?)",
              (session["user_id"], exam["id"], corr_ans_stu, date_today, ques_count), commit=True)
-
+    query_db("UPDATE cheat SET now = ? WHERE student_id = ? AND exam_id = ?", ( "out", session["user_id"], exam["id"]), commit=True)
     flash(f"تم التسليم. الدرجة: {corr_ans_stu}/{ques_count}", "warning")
     return redirect("/")
 
@@ -215,13 +219,15 @@ def login():
     if request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
         if not username:
-            return render_template("login.html", state="Enter username!")
+            return render_template("login.html", state="Enter username!", return_usr_nam="")
         elif not password:
-            return render_template("login.html", state="Enter password!")
+            return render_template("login.html", state="Enter password!", return_usr_nam=username)
 
         user = query_db("SELECT * FROM users WHERE username = ?", (username,), one=True)
-        if not user or not check_password_hash(user["password"], password):
-            return render_template("login.html", state="invalid username and/or password")
+        if not user:
+            return render_template("login.html", state="invalid username ", return_usr_nam="")
+        elif not check_password_hash(user["password"], password):
+            return render_template("login.html", state="invalid password", return_usr_nam=username)
 
         session["user_id"] = user["id"]
         return redirect("/")

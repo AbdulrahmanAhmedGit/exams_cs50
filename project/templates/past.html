@@ -8,15 +8,15 @@ Past Exams
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
   <ul class="navbar-nav me-auto">
     <li class="nav-item">
-      <a class="nav-link active" href="/past">📜 Past Exams</a>
+      <a class="nav-link active" href="/past"><i class="fa-regular fa-scroll-old"></i> Past Exams</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/new_ex">➕ Create New</a>
+      <a class="nav-link" href="/new_ex"><i class="fa-solid fa-plus"></i> Create New</a>
     </li>
   </ul>
   <ul class="navbar-nav ms-auto">
     <li class="nav-item">
-      <a href="/logout" class="btn btn-danger">🚪 Log out</a>
+      <a href="/logout" class="btn btn-danger"><i class="fa-regular fa-right-from-bracket"></i> Log out</a>
     </li>
   </ul>
 </div>
@@ -24,7 +24,7 @@ Past Exams
 
 {% block main %}
 <div class="container py-5">
-  <h2 class="text-center mb-4">📜 My Past Exams</h2>
+  <h2 class="text-center mb-4"><i class="fa-regular fa-scroll-old"></i> My Past Exams</h2>
 
   {% if exam|length == 0 %}
   <div class="alert alert-info text-center" role="alert">
@@ -38,10 +38,10 @@ Past Exams
         <div class="card-body text-center">
           <h5 class="card-title fw-bold">{{ i.name }}</h5>
           <p class="card-text text-muted">
-            <strong>🔑 Token:</strong> {{ i.token }}
+            <strong><i class="fa-solid fa-key-skeleton"></i> Token:</strong> {{ i.token }}
           </p>
           <a href="/exam/preview/{{ i.token }}" class="btn btn-primary w-100">
-            👀 Preview
+            <i class="fa-solid fa-magnifying-glass"></i> Preview
           </a>
         </div>
       </div>

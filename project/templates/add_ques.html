@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
-
+{% block title %}
+New
+{% endblock %}
 {% block main %}
     {% if state %}
         <div class="alert alert-danger text-center animate__animated animate__fadeIn">
@@ -9,7 +11,7 @@
 
     <div class="container my-5">
         <div class="card shadow-sm p-4">
-            <h3 class="text-center mb-4">✏️ Create Exam Questions</h3>
+            <h3 class="text-center mb-4"><i class="fa-solid fa-pen-line"></i> Create Exam Questions</h3>
 
             <form method="POST" action="/send_q" id="exam-form">
                 <input type="hidden" name="exam_id" value="{{ exam_id }}">
@@ -29,13 +31,13 @@
                         </div>
                         {% endfor %}
 
-                        <button type="button" class="btn btn-danger btn-sm remove-question mt-2">🗑 Delete Question</button>
+                        <button type="button" class="btn btn-danger btn-sm remove-question mt-2"><i class="fa-solid fa-trash"></i> Delete Question</button>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <button class="btn btn-outline-primary" type="button" id="add-question">+ Add Question</button>
-                    <button class="btn btn-success" type="submit">💾 Save Exam</button>
+                    <button class="btn btn-success" type="submit"><i class="fa-regular fa-floppy-disk"></i> Save Exam</button>
                 </div>
             </form>
         </div>

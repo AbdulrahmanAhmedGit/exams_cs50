@@ -9,7 +9,7 @@ EXAM
   <h1 class="mb-3">{{ name }}</h1>
 
   <p class="fs-5">
-    ⏳ الوقت المتبقي:
+    <i class="fa-solid fa-timer"></i> الوقت المتبقي:
     <strong id="timer" data-seconds="{{ ((time or 0)|int) * 60 }}"></strong>
   </p>
 
@@ -40,12 +40,12 @@ EXAM
     {% endfor %}
 
     {% if role == "stu" %}
-    <button type="submit" class="btn btn-success w-100">📤 تسليم الامتحان</button>
+    <button type="submit" class="btn btn-success w-100"><i class="fa-regular fa-paper-plane"></i> تسليم الامتحان</button>
     {% endif %}
   </form>
 
   {% if role == "teacher" %}
-  <a href="/past" class="btn btn-secondary mt-3">🔙 Back</a>
+  <a href="/past" class="btn btn-secondary mt-3"><i class="fa-solid fa-arrow-left"></i> Back</a>
   {% endif %}
 </div>
 
