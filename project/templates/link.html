@@ -13,7 +13,7 @@ Exam Link
                 {{ link }}
             </p>
             <button class="btn btn-success mb-3" onclick="copyLink()"><i class="fa-regular fa-copy"></i> Copy Link</button>
-            <form action="/link" method="POST">
+            <form action="/send_q/link/{{ token }}" method="POST">
                 <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i> Next</button>
             </form>
         </div>

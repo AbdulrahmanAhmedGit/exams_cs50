@@ -9,7 +9,7 @@ Past Exams
     <ul class="navbar-nav me-auto">
 
         <li class="nav-item">
-            <a class="nav-link" href="/my_exams"><i class="fa-solid fa-book"></i> My Exams</a>
+            <a class="nav-link" href="/my_exams"><i class="fa-regular fa-book"></i> My Exams</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/statistics"><i class="fa-solid fa-chart-line"></i> My Statistics</a>
@@ -26,7 +26,7 @@ Past Exams
 
 {% block main %}
 <div class="container py-4">
-    <h1 class="text-center mb-4">📜 Past Exams</h1>
+    <h1 class="text-center mb-4"><i class="fa-regular fa-scroll-old"></i> Past Exams</h1>
 
     {% if not my_past %}
     <div class="row justify-content-center">
@@ -41,14 +41,19 @@ Past Exams
                     <h5 class="card-title fw-bold">{{ i }}</h5>
 
                     <p class="card-text {{ 'text-success' if percentage >= 50 else 'text-danger' }} fw-bold">
-                        {{ '✅' if percentage >= 50 else '❌' }} Grade: {{ score }}/{{ total }} ({{ percentage }}%)
+                        {% if percentage >= 50 %}
+                            <i class="fa-regular fa-circle-check"></i>
+                        {% else %}
+                            <i class="fa-regular fa-circle-xmark"></i>
+                        {% endif %}
+                         Grade: {{ score }}/{{ total }} ({{ percentage }}%)
                     </p>
 
                     <p class="card-text text-muted">
-                        📅 Date: {{ date[loop.index-1] }}
+                        <i class="fa-regular fa-calendar-days"></i> Date: {{ date[loop.index-1] }}
                     </p>
 
-                    <a href="#" class="btn btn-outline-primary btn-sm" >📄 View Details</a>
+                    <a href="#" class="btn btn-outline-primary btn-sm" ><i class="fa-regular fa-square-list"></i> View Details</a>
                 </div>
             </div>
         </div>

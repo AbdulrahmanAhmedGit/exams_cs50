@@ -1,13 +1,13 @@
 import sqlite3
-from flask import Flask, flash, redirect, render_template, request, session, url_for, abort
+from flask import Flask, flash, redirect, render_template, request, session, abort
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, teacher_required, not_teacher
-import random
+from helpers import login_required, teacher_required, not_teacher, get_db
 import secrets
 import uuid
 from datetime import datetime
-
+import os
+import random
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -15,30 +15,34 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "exams.db")
+
+
 def query_db(query, args=(), one=False, commit=False):
-    conn = sqlite3.connect("exams.db")
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-    cur.execute(query, args)
+    db = get_db()
+    cur = db.execute(query, args)
     if commit:
-        conn.commit()
-        conn.close()
-        return cur.lastrowid
+        db.commit()
+        return None
     rv = cur.fetchall()
-    conn.close()
-    return (rv[0] if rv else None) if one else [dict(row) for row in rv]
+    return (rv[0] if rv else None) if one else rv
+# =================================
 
 
 @app.route("/index")
 @app.route("/")
 @login_required
 def index():
+    color = f"rgb({random.randint(0,255)}, {random.randint(0,255)}, {random.randint(0,255)})"
     role = query_db("SELECT role FROM users WHERE id = ?", (session["user_id"],), one=True)
     name = query_db("SELECT username FROM users WHERE id = ?", (session["user_id"],), one=True)
-    if role["role"].lower() == "teacher":
-        return render_template("index.html", role="teacher", username=name["username"])
-    else:
-        return render_template("index.html", role=role["role"].lower(), username=name["username"])
+    return render_template(
+        "index.html",
+        role="teacher" if role["role"].lower() == "teacher" else role["role"].lower(),
+        username=name["username"],
+        color=color
+    )
 
 
 @app.route("/new_ex", methods=["GET", "POST"])
@@ -52,13 +56,13 @@ def new_ex():
         if not q_name:
             return render_template("new_ex.html", state="Enter Exam Name!")
 
-        exam_id = query_db(
+        query_db(
             "INSERT INTO exams (name, created_by, time_limit, token) VALUES (?, ?, ?, ?)",
             (q_name, session["user_id"], float(time) if time else None, token),
             commit=True
         )
-
-        return redirect(url_for("send_q", exam_id=exam_id))
+        exam_id = query_db("SELECT id FROM exams WHERE token = ?", (token,), one=True)
+        return redirect(f"send_q/{exam_id['id']}")
 
     return render_template("new_ex.html")
 
@@ -67,45 +71,41 @@ def new_ex():
 @login_required
 @not_teacher
 def statistics():
-    exams = query_db("SELECT exam_id, score, ex_co FROM results WHERE student_id = ?", (session["user_id"],),)
+    exams = query_db("SELECT exam_id, score, ex_co FROM results WHERE student_id = ?", (session["user_id"],))
     if exams:
-        labels = []
-        data = []
-        score = 0
-        total = 0
+        labels, data = [], []
+        score, total = 0, 0
         for row in exams:
-            name = query_db("SELECT name FROM exams WHERE id = ?", (row["exam_id"],),)
+            name = query_db("SELECT name FROM exams WHERE id = ?", (row["exam_id"],))
             labels.append(name[0]["name"])
             data.append(row["score"])
             if row["ex_co"]:
                 total += row["ex_co"]
             score += row["score"]
-        percentage = round((score / total * 100))
-    
+        percentage = round((score / total * 100)) if total else 0
         return render_template("statistics.html", total=percentage, labels=labels, data=data)
 
-@app.route("/link", methods=["POST", "GET"])
+
+@app.route("/send_q/link/<token>", methods=["POST", "GET"])
 @login_required
 @teacher_required
-def link():
+def link(token):
     if request.method == "GET":
-        exam_id = request.args.get("exam_id")
-        token = query_db("SELECT token FROM exams WHERE id = ?", (exam_id,), one=True)
-        link = f"/exam/take/{token['token']}"
-        return render_template("link.html", link=link)
-    flash("All questions saved successfully!", "success")
-    return redirect("/")
+        link = f"https://abdo1232.pythonanywhere.com/exam/take/{token}"
+        return render_template("link.html", link=link, token=token)
+    else:
+        flash("All questions saved successfully!", "success")
+        return redirect("/")
 
 
-@app.route("/send_q", methods=["POST", "GET"])
+@app.route("/send_q/<id_u>", methods=["POST", "GET"])
 @login_required
 @teacher_required
-def send_q():
+def send_q(id_u):
     if request.method == "GET":
-        exam_id = request.args.get("exam_id")
-        return render_template("add_ques.html", exam_id=exam_id)
+        return render_template("add_ques.html", exam_id=id_u, id=id_u)
 
-    exam_id = request.values.get("exam_id")
+    exam_id = id_u
     teacher_id = session["user_id"]
     questions = request.form.getlist("question_text[]")
 
@@ -124,7 +124,8 @@ def send_q():
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (exam_id, teacher_id, q_text, choice_a, choice_b, choice_c, choice_d, correct_choice), commit=True)
 
-    return redirect(url_for("link", exam_id=exam_id))
+    token = query_db("SELECT token FROM exams WHERE id = ?", (exam_id,), one=True)
+    return redirect(f"link/{token['token']}")
 
 
 @app.route("/past", methods=["GET", "POST"])
@@ -168,10 +169,9 @@ def take_exam(token):
             flash("YOU CANNOT !", "danger")
             return redirect("/")
         in_out = query_db("SELECT now FROM cheat WHERE exam_id = ?", (exam["id"],))
-        if in_out:
-            if in_out[0]["now"] == "IN":
-                return redirect(f"/submit/{token}")
-        query_db("INSERT INTO cheat (student_id, exam_id, now) VALUES(?,?,?) ", (session["user_id"], exam["id"],"IN"), commit=True)
+        if in_out and in_out[0]["now"] == "IN":
+            return redirect(f"/submit/{token}")
+        query_db("INSERT INTO cheat (student_id, exam_id, now) VALUES(?,?,?) ", (session["user_id"], exam["id"], "IN"), commit=True)
         questions = query_db("SELECT * FROM questions WHERE exam_id = ?", (exam["id"],))
         return render_template("take-exam.html", time=exam["time_limit"], name=exam["name"], questions=questions, count=0, token=token, role="stu")
 
@@ -187,7 +187,7 @@ def preview_exam(token):
     return render_template("take-exam.html", time=exam["time_limit"], name=exam["name"], questions=questions, count=0, token=token, role="teacher")
 
 
-@app.route("/submit/<token>", methods=["POST","GET"])
+@app.route("/submit/<token>", methods=["POST", "GET"])
 @login_required
 @not_teacher
 def get_student_ans(token):
@@ -208,7 +208,7 @@ def get_student_ans(token):
 
     query_db("INSERT INTO results (student_id, exam_id, score, date_taken, ex_co) VALUES(?, ?, ?, ?, ?)",
              (session["user_id"], exam["id"], corr_ans_stu, date_today, ques_count), commit=True)
-    query_db("UPDATE cheat SET now = ? WHERE student_id = ? AND exam_id = ?", ( "out", session["user_id"], exam["id"]), commit=True)
+    query_db("UPDATE cheat SET now = ? WHERE student_id = ? AND exam_id = ?", ("out", session["user_id"], exam["id"]), commit=True)
     flash(f"تم التسليم. الدرجة: {corr_ans_stu}/{ques_count}", "warning")
     return redirect("/")
 
@@ -237,7 +237,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return render_template("login.html", success="Logged out successfully!")
 
 
 @app.route("/register", methods=["GET", "POST"])

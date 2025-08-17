@@ -13,7 +13,7 @@ New
         <div class="card shadow-sm p-4">
             <h3 class="text-center mb-4"><i class="fa-solid fa-pen-line"></i> Create Exam Questions</h3>
 
-            <form method="POST" action="/send_q" id="exam-form">
+            <form method="POST" action="/send_q/{{ id }}" id="exam-form">
                 <input type="hidden" name="exam_id" value="{{ exam_id }}">
 
                 <div id="questions-container">

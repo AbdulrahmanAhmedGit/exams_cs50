@@ -16,7 +16,7 @@ Main
         {% endif %}
         {% if role == "student" %}
         <li class="nav-item">
-            <a class="nav-link" href="/my_exams"><i class="fa-solid fa-book"></i> My Exams</a>
+            <a class="nav-link" href="/my_exams"><i class="fa-regular fa-book"></i> My Exams</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/statistics"><i class="fa-solid fa-chart-line"></i> My Statistics</a>
@@ -34,13 +34,13 @@ Main
 {% block main %}
 
 <h1 class="text-center my-4">
-    <i class="fa-regular fa-hand-wave" style="color: #1596f9;"></i> Welcome, {{ username }}
+    <i class="fa-regular fa-hand-wave fa-shake" style="color: rgb{{ color }};animation-duration: 3.5s;animation-delay: 0s;"></i> Welcome, {{ username }}
 </h1>
 {% if role == "student" %}
 
 <div class="text-center mt-4">
     <a href="/my_exams" class="btn btn-primary btn-lg">
-        <i class="fa-solid fa-book"></i> My Exams
+        <i class="fa-regular fa-book"></i> My Exams
     </a>
     <a href="/statistics" class="btn btn-primary btn-lg">
         <i class="fa-solid fa-chart-line"></i> My Statistics
